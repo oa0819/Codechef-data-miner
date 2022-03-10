@@ -1,6 +1,8 @@
 package dataminer;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.*;
@@ -10,11 +12,25 @@ public class codechefdata {
 	private Document doc;
 	private String userId;
 	
-	public void setUserId(String userId) throws IOException
+	codechefdata()
+	{
+		this.userId = null;
+	}
+	
+	codechefdata(String userId) throws Exception
+	{
+		this.userId = userId;
+		this.setUserId(userId);
+	}
+	
+	public void setUserId(String userId) throws Exception
 	{
 		this.userId = userId;
 		
 		doc = Jsoup.connect("https://www.codechef.com/users/" + this.userId).timeout(5000).get();
+		
+		if(doc.baseUri().equals("https://www.codechef.com/"))
+			throw new Exception("Wrong userid");
 	}
 	
 	public int getCurrentRating()
@@ -40,11 +56,31 @@ public class codechefdata {
 		Element fullCnt = doc.select("section.problems-solved div h5").get(0);
 		return fullCnt.html();
 	}
-	/*
-	public List<String> getProblemCode()
+	
+	public List<String> getProblemCodefull()
 	{
-		Elements code = doc.select("section.problems-solved article p span a");
-		return code.html();
-	}*/
+		Element code = doc.select("section.problems-solved article").get(0);
+		Elements solvedProb = code.select("p").get(0).select("span a");
+		
+		List<String> res = new ArrayList<>();
+		
+		for(Element e: solvedProb)
+			res.add(e.html());
+		
+		return res;
+	}
+	
+	public List<String> getProblemCodepartial()
+	{
+		Element code2 = doc.select("section.problems-solved article").get(1);
+		Elements solvedProb2 = code2.select("p").get(0).select("span a");
+		
+		List<String> res = new ArrayList<>();
+		
+	
+		for(Element e: solvedProb2)
+			res.add(e.html());
+		return res;
+	}
 	
 }
